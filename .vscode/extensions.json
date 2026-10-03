@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "ms-python.python",       // Python基本拡張
+    "charliermarsh.ruff",     // 超高速なリンター＆フォーマッター（実務で大流行中）
+    "ms-python.mypy-type-checker" // 型チェック（TypeScript経験のあるあなたに特におすすめ）
+  ]
+}
