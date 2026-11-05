@@ -1,30 +1,21 @@
 # models/enemy.py
-import random
+from models.character import Character
+from models.partner_monster import PartnerMonster
 
-class Enemy:
-    def __init__(self, is_boss: bool = False):
+class Enemy(Character):
+    def __init__(self, name: str, hp: int, attack: int, defense: int, speed: int, is_boss: bool = False):
+        """
+        【データ保持用】受け取った値を親クラスに渡すだけ。
+        """
+        super().__init__(name, hp, attack, defense, speed)
+        self.is_boss = is_boss
+
+    @classmethod
+    def create_enemy(cls, turn: int, is_boss: bool = False) -> 'Enemy':
         """
         【担当：メンバーD】
-        敵の初期ステータスを生成する。
-        - is_boss が True の場合、非常に高いステータス（HP50など）と専用の名前を設定する。
-        - is_boss が False の場合、通常のランダムなステータス（HP, attack, defense, speed）を設定する。
-        """
-        self.is_boss: bool = is_boss
-        self.name: str = ""
-        self.hp: int = 0
-        self.attack: int = 0
-        self.defense: int = 0
-        self.speed: int = 0
-        
-        # メンバーDがここにステータス生成の具体的なロジック（if文など）を書く
-        pass
-
-    def take_damage(self, amount: int) -> int:
-        """
-        【担当：メンバーB】
-        敵がダメージを受ける処理。
-        - self.hp から amount を引く
-        - HPが0未満にならないように調整する（0を維持）
-        - 実際に減ったダメージ量を return する
+        ターン数に応じた敵を生成して返すファクトリメソッド。
+        - is_boss=True の場合は、非常に強力なボスを生成して return cls(...)
+        - 通常時は turn (経過ターン) の数値を計算式に入れてステータスを決め、return cls(...)
         """
         pass

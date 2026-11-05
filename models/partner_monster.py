@@ -1,32 +1,31 @@
 # models/partner_monster.py
-class PartnerMonster:
+from models.character import Character
+
+class PartnerMonster(Character):
     def __init__(self):
         """
         【担当：メンバーD】
-        初期ステータスを設定する。
-        - hpを10に固定
-        - attack, defense, speedを2〜6の範囲でランダムに決定する（randomモジュールを使用）
+        初期ステータスのランダム生成。
+        - hp=10 で親クラス(Character)を初期化する
+        - attack, defense, speed を 2〜6 の乱数で生成してセットする
         """
-        self.hp: int = 10
-        self.attack: int = 0  # 後で乱数処理に書き換える
-        self.defense: int = 0
-        self.speed: int = 0
+        super().__init__(name="相棒", hp=10, attack=0, defense=0, speed=0)
+        # ここに乱数処理を書く
 
-    def take_damage(self, amount: int) -> int:
+    def heal(self, amount: int) -> None:
         """
-        【担当：メンバーB】
-        ダメージを受ける処理。
-        - self.hp から amount を引く
-        - HPが0未満にならないように調整する
-        - 実際に減ったダメージ量を return する
+        【担当：メンバーC】
+        回復処理。
+        - self.hp に amount を足す
+        - 最大HP (self.max_hp) を超えないように調整する
         """
         pass
 
     def boost_stats(self, target: str, points: int) -> None:
         """
         【担当：メンバーC】
-        指定されたステータスを強化する。
-        - targetが "attack" なら self.attack += points
-        - defense, speed も同様に処理する
+        育成・イベント用のステータス強化。
+        - target に応じて、attack, defense, speed のいずれかに points を加算する
+        - マイナス（呪いなど）にも対応できるよう、そのまま加算(+=)する
         """
         pass
