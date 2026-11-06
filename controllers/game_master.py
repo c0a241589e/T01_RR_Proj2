@@ -25,6 +25,8 @@ class GameMaster:
         4. 15ターン経過でボス戦処理（Enemy.create_enemy(is_boss=True) を呼ぶ）
         """
 
+        self.map.generate_grid()
+
         while self.current_turn <= self.max_turn:
             Views.show_message(f"\n===== ターン {self.current_turn} / {self.max_turn} =====")
             room = self.process_room_select()
@@ -32,6 +34,12 @@ class GameMaster:
             # 部屋の種類に応じて処理を分岐
             if room.is_cleared:
                 self.process_recovery()
+            elif room.room_type == "boss":
+                # ボス部屋に入ったらその場でボス戦 → 勝敗判定してゲーム終了
+                Views.show_message("\n===== ボス部屋だ！ボスが現れた！ =====")
+                boss = Enemy.create_enemy(self.current_turn, is_boss=True)
+                self.judge_result(self.process_battle(boss))
+                return
             elif room.room_type == "battle":
                 self.process_battle(Enemy.create_enemy(self.current_turn))
             elif room.room_type == "training":
@@ -44,8 +52,7 @@ class GameMaster:
 
             # 部屋の処理直後に生存チェック
             if not self.player.is_alive():
-                Views.show_message("相棒は力尽きた…… GAME OVER")
-                self.is_running = False
+                self.judge_result(False)
                 return
 
             self.current_turn += 1
@@ -53,8 +60,19 @@ class GameMaster:
         # 15ターン経過 → ボス戦
         Views.show_message("\n===== ボスが現れた！ =====")
         boss = Enemy.create_enemy(self.current_turn, is_boss=True)
-        self.process_battle(boss)
+        self.judge_result(self.process_battle(boss))
+
+    def judge_result(self, boss_defeated: bool) -> None:
+        """
+        勝敗判定。
+        - ボスを倒し、相棒が生きていれば勝利 (GAME CLEAR)
+        - それ以外（相棒が力尽きた）は敗北 (GAME OVER)
+        """
         self.is_running = False
+        if boss_defeated and self.player.is_alive():
+            Views.show_message("\n★★★ ボスを倒した！ GAME CLEAR ★★★")
+        else:
+            Views.show_message("\n相棒は力尽きた…… GAME OVER")
 
     def process_room_select(self)-> Room:
         """
@@ -84,33 +102,47 @@ class GameMaster:
         3. 「逃げる」の場合は calculate_flee() で判定
         ※ どちらかのis_alive()がFalseになるか、逃走成功でループ終了
         """
-        Views.show_battle_status()
+        Views.show_message(f"{enemy.name} が現れた！")
         while True:
-            print("1:戦う　2:逃げる")
-            print("1か2を入力してください：", end="")
-            select_action = int(input())
-            if enemy.is_boss == True:
-                if select_action == 1:
-                    PartnerMonster.take_damage(1)
-                    enemy.take_damage(1)
-                elif select_action == 2:
-                    print("ボスからは逃げられない！")
+            Views.show_battle_status(self.player, enemy)
+            select_action = Views.get_player_input("1:戦う　2:逃げる").strip()
+
+            if select_action == "1":
+                self.attack_round(enemy)
+            elif select_action == "2":
+                if enemy.is_boss:
+                    Views.show_message("ボスからは逃げられない！")
                     continue
-                else:
-                    continue
+                Views.show_message("うまく逃げ切れた！")
+                return False
             else:
-                if select_action == 1:
-                    PartnerMonster.take_damage(1)
-                    enemy.take_damage(1)
-                elif select_action == 2:
-                    break
-                else:
-                    continue
+                Views.show_message("1か2を入力してください。")
+                continue
 
-            if enemy.is_alive() == False or PartnerMonster.is_alive() == False:
+            # 勝敗判定
+            if not self.player.is_alive():
+                Views.show_message(f"{self.player.name} は倒れてしまった…")
+                return False
+            if not enemy.is_alive():
+                Views.show_message(f"{enemy.name} を倒した！")
+                return True
+
+    def attack_round(self, enemy: Enemy) -> None:
+        """
+        1ターン分の攻撃処理。素早さが高い方から攻撃する（同値なら相棒が先攻）。
+        先に攻撃した側が相手を倒したら、後攻の攻撃は行わない。
+        """
+        if self.player.speed >= enemy.speed:
+            order = [(self.player, enemy), (enemy, self.player)]
+        else:
+            order = [(enemy, self.player), (self.player, enemy)]
+
+        for attacker, defender in order:
+            damage = max(1, attacker.attack - defender.defense)
+            defender.take_damage(damage)
+            Views.show_message(f"{attacker.name} の攻撃！ {defender.name} に {damage} のダメージ！")
+            if not defender.is_alive():
                 break
-
-        pass
 
     def calculate_dodge(self, attacker_speed: int, defender_speed: int) -> bool:
         """

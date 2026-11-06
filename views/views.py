@@ -63,7 +63,8 @@ class Views:
         【担当：メンバーB】
         プレイヤーと敵の現在のHP・ステータスを比較できるように表示する。
         """
-        pass
+        for c in (monster, enemy):
+            print(f"[{c.name}] HP:{c.hp}/{c.max_hp}  攻:{c.attack}  防:{c.defense}  速:{c.speed}")
 
     @staticmethod
     def show_training_options(points: int) -> None:
