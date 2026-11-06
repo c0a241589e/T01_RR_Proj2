@@ -135,7 +135,8 @@ class GameMaster:
         育成部屋の処理。
         4〜7ptを算出し、Views.show_training_options() を経由してプレイヤーに割り振らせる。
         """
-        pass
+        Views.show_message("育成部屋に入った！攻撃が1上がった！")
+        self.player.attack += 1
 
     def process_event(self) -> None:
         """
@@ -146,11 +147,12 @@ class GameMaster:
         3. process_event_result() を呼び出して結果を適用
         4. もし結果の action が "start_battle" なら、Enemyを生成して process_battle() を呼ぶ
         """
-        pass
+        Views.show_message("イベントが発生した！しかし何も起きなかった！")
 
     def process_recovery(self) -> None:
         """
         【担当：メンバーC】
         クリア済み（回復）部屋の処理。player.heal() を呼び出して回復する。
         """
-        pass
+        Views.show_message("HPが回復した！")
+        self.player.hp += 5
