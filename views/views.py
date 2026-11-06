@@ -67,14 +67,6 @@ class Views:
             print(f"[{c.name}] HP:{c.hp}/{c.max_hp}  攻:{c.attack}  防:{c.defense}  速:{c.speed}")
 
     @staticmethod
-    def show_training_options(points: int) -> None:
-        """
-        【担当：メンバーC】
-        「〇〇pt獲得！」と現在のステータスを表示し、割り振りを促す。
-        """
-        pass
-
-    @staticmethod
     def show_event_options(event_data: Dict[str, Any]) -> None:
         """
         【担当：メンバーC】
@@ -96,3 +88,23 @@ class Views:
         print("5. 育成部屋ではステータスを強化できます。")
         print("6. ボス戦で勝利するとゲームクリアです。ボス戦では「逃げる」ことはできません。")
         print("=====================")
+        
+    @staticmethod
+    def get_training_choice(points: int) -> str:
+        """
+        【担当：メンバーC】育成部屋用
+        1. 「〇〇pt獲得！どこを上げる？」と表示。
+        2. 攻撃・防御・素早さ から1つを選ばせる入力を受ける。
+        3. 選ばれたステータスの英語名（"attack", "defense", "speed"）を返す。
+        """
+        pass
+
+    @staticmethod
+    def get_reward_distribution(total_points: int) -> dict:
+        """
+        【担当：リーダー】戦闘勝利時用
+        1. total_points をHP・攻撃・防御・素早さにどう振り分けるか、ループで1つずつ入力を受ける。
+        2. 入力された値の合計が total_points になるまでやり直させる。
+        3. 結果を辞書 {"hp": 〇, "attack": 〇, "defense": 〇, "speed": 〇} にして返す。
+        """
+        pass
