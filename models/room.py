@@ -4,7 +4,7 @@ class Room:
         """
         【担当：リーダー】
         部屋の初期化を行う。
-        - room_type には "start", "boss", "battle", "training", "event", "random" のいずれかが入る。
+        - room_type には "start", "boss", "battle", "training", "event" のいずれかが入る。
         - is_cleared は初期状態では False とする。
         - room_type に応じて、プレイヤーに提示する hint_text を設定する。
           （例: "battle" なら "モンスターの獰猛な気配がする…" など）
@@ -13,5 +13,13 @@ class Room:
         self.is_cleared: bool = False
         self.hint_text: str = ""
         
-        # ここに hint_text を設定するif文などを書く
-        pass
+        if room_type == "start":
+            self.hint_text = "見覚えのある場所だ。"
+        elif room_type == "boss":
+            self.hint_text = "圧倒的な威圧感が漂ってくる…！"
+        elif room_type == "battle":
+            self.hint_text = "モンスターの獰猛な気配がする…"
+        elif room_type == "training":
+            self.hint_text = "鍛錬に使えそうな道具の音が聞こえる。"
+        elif room_type == "event":
+            self.hint_text = "何やら不思議な気配がする…"
