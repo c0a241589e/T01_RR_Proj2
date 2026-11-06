@@ -25,6 +25,7 @@ class GameMaster:
         4. 15ターン経過でボス戦処理（Enemy.create_enemy(is_boss=True) を呼ぶ）
         """
 
+        Views.show_game_rule()
         self.map.generate_grid()
 
         while self.current_turn <= self.max_turn:
