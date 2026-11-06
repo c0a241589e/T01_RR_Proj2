@@ -18,4 +18,12 @@ class Enemy(Character):
         - is_boss=True の場合は、非常に強力なボスを生成して return cls(...)
         - 通常時は turn (経過ターン) の数値を計算式に入れてステータスを決め、return cls(...)
         """
-        pass
+        if is_boss:
+            return cls(
+                name="魔王", hp=10, attack=5, defense=5, speed=5, is_boss=True
+            )
+
+        else:
+            return cls(
+                name="雑魚敵", hp=3, attack=2, defense=1, speed=2, is_boss=False
+            )
