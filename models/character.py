@@ -2,7 +2,6 @@
 class Character:
     def __init__(self, name: str, hp: int, attack: int, defense: int, speed: int):
         """
-        【担当：全員共通の親クラス】
         敵と味方の共通ステータスを保持する。
         """
         self.name = name
@@ -20,11 +19,10 @@ class Character:
 
     def take_damage(self, amount: int) -> int:
         """
-        【担当：メンバーB（戦闘処理）】
-        ダメージを受ける共通処理。
-        - self.hp から amount を引く
-        - HPが0未満にならないように max(0, hp) で調整する
-        - 実際に減ったダメージ量を return する
+        【担当：メンバーB】
+        1. self.hp から amount を引く。
+        2. HPが0未満にならないように max(0, hp) で調整する。
+        3. 【修正】実際に減ったダメージ量を計算し、return すること。
         """
         self.hp -= amount
         if self.hp < 0:

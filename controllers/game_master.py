@@ -97,11 +97,23 @@ class GameMaster:
     def process_battle(self, enemy: Enemy) -> bool:
         """
         【担当：メンバーB】
-        戦闘ループ。
-        1. Views.show_battle_status() でお互いのステータス表示
-        2. 素早さを比較し、高い方から攻撃処理 (calculate_dodgeで回避判定後、take_damage)
-        3. 「逃げる」の場合は calculate_flee() で判定
-        ※ どちらかのis_alive()がFalseになるか、逃走成功でループ終了
+        1. 戦闘ループ（Viewsから「1:戦う 2:逃げる」の入力を受ける）
+        
+        2. 「逃げる」選択時の処理：
+           - 敵がボス (enemy.is_boss) の場合は「逃げられない！」と表示して失敗扱い。
+           - ボス以外なら self.calculate_flee(...) を呼び、成功すればループを抜ける。
+           
+        3. 「戦う」選択・敵の攻撃処理：
+           - プレイヤーの攻撃で敵にダメージを与える。
+           - 敵の攻撃前には self.calculate_dodge(...) を呼び、False(回避失敗)の時だけプレイヤーにダメージを与える。
+           - どちらかの is_alive() が False になったらループを抜ける。
+           
+        4. 戦闘ループ終了後の処理：
+           - もし敵を倒した (enemy.is_alive() == False) なら、報酬割り振りを行う。
+             distribution = Views.get_reward_distribution(enemy.reward_points)
+             self.player.distribute_reward(distribution)
+             
+        5. 最後に return self.player.is_alive() を返す。
         """
         Views.show_message(f"{enemy.name} が現れた！")
         while True:
@@ -149,7 +161,7 @@ class GameMaster:
         """
         【担当：メンバーB】
         回避判定ロジック。
-        defender_speed が上回っている場合のみ、差分に応じた確率で True を返す。
+        防御側の素早さが高い場合、差分×5%などの確率を計算し、回避成功なら True を返す。
         """
         pass
 
@@ -164,8 +176,9 @@ class GameMaster:
     def process_training(self) -> None:
         """
         【担当：メンバーC】
-        育成部屋の処理。
-        4〜7ptを算出し、Views.show_training_options() を経由してプレイヤーに割り振らせる。
+        1. 4〜7の乱数ポイントを生成する。
+        2. choice = Views.get_training_choice(points) を呼んで選ばれたステータスを取得。
+        3. self.player.boost_single_stat(choice, points) を実行する。
         """
         Views.show_message("育成部屋に入った！攻撃が1上がった！")
         self.player.attack += 1
@@ -173,11 +186,10 @@ class GameMaster:
     def process_event(self) -> None:
         """
         【担当：メンバーC】
-        イベント部屋の処理。
-        1. self.event_manager.get_random_event() でデータを取得
-        2. Views.show_event_options() で表示し、入力を受ける
-        3. process_event_result() を呼び出して結果を適用
-        4. もし結果の action が "start_battle" なら、Enemyを生成して process_battle() を呼ぶ
+        1. event_data = self.event_manager.get_random_event()
+        2. Views.show_event_options() で表示し入力結果を受け取る。
+        3. result = self.event_manager.process_event_result(...)
+        4. result["action"] == "start_battle" ならボス以外の敵を生成して process_battle(enemy) に突入させる。
         """
         Views.show_message("イベントが発生した！しかし何も起きなかった！")
 
