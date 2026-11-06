@@ -24,7 +24,6 @@ class GameMaster:
         3. process_room_select() で部屋を移動し、room_type に応じて各processメソッドへ分岐
         4. 15ターン経過でボス戦処理（Enemy.create_enemy(is_boss=True) を呼ぶ）
         """
-        self.map.generate_grid()
 
         while self.current_turn <= self.max_turn:
             Views.show_message(f"\n===== ターン {self.current_turn} / {self.max_turn} =====")

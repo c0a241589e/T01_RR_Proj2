@@ -9,8 +9,9 @@ class PartnerMonster(Character):
         - hp=10 で親クラス(Character)を初期化する
         - attack, defense, speed を 2〜6 の乱数で生成してセットする
         """
-        super().__init__(name="相棒", hp=10, attack=0, defense=0, speed=0)
+        super().__init__(name="相棒", hp=10, attack=5, defense=5, speed=5)
         # ここに乱数処理を書く
+
 
     def heal(self, amount: int) -> None:
         """
