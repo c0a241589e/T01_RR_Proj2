@@ -24,7 +24,15 @@ class GameMaster:
         3. process_room_select() で部屋を移動し、room_type に応じて各processメソッドへ分岐
         4. 15ターン経過でボス戦処理（Enemy.create_enemy(is_boss=True) を呼ぶ）
         """
-        pass
+        # ボスを生成
+        boss = Enemy.create_enemy(self.current_turn, is_boss=True)
+
+        # 勝敗判定
+        if boss.hp <= 0:
+            print("\nゲームクリア！")
+        elif self.player.hp <= 0:
+            print("\nゲームオーバー…")
+        return
 
     def process_room_select(self)-> Room:
         """
