@@ -26,4 +26,7 @@ class Character:
         - HPが0未満にならないように max(0, hp) で調整する
         - 実際に減ったダメージ量を return する
         """
+        self.hp -= amount
+        if self.hp < 0:
+            self.hp = 0
         pass

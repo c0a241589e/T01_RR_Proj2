@@ -45,6 +45,32 @@ class GameMaster:
         3. 「逃げる」の場合は calculate_flee() で判定
         ※ どちらかのis_alive()がFalseになるか、逃走成功でループ終了
         """
+        Views.show_battle_status()
+        while True:
+            print("1:戦う　2:逃げる")
+            print("1か2を入力してください：", end="")
+            select_action = int(input())
+            if enemy.is_boss == True:
+                if select_action == 1:
+                    PartnerMonster.take_damage(1)
+                    enemy.take_damage(1)
+                elif select_action == 2:
+                    print("ボスからは逃げられない！")
+                    continue
+                else:
+                    continue
+            else:
+                if select_action == 1:
+                    PartnerMonster.take_damage(1)
+                    enemy.take_damage(1)
+                elif select_action == 2:
+                    break
+                else:
+                    continue
+
+            if enemy.is_alive() == False or PartnerMonster.is_alive() == False:
+                break
+
         pass
 
     def calculate_dodge(self, attacker_speed: int, defender_speed: int) -> bool:
