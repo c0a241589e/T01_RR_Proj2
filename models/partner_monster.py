@@ -38,4 +38,9 @@ class PartnerMonster(Character):
         引数 distribution (例: {"hp": 1, "attack": 2...}) の中身を取り出し、
         それぞれのステータスに加算する。hp の場合は max_hp も同時に上げる。
         """
-        pass
+        hp_up = distribution.get("hp", 0)
+        self.max_hp += hp_up
+        self.hp += hp_up
+        self.attack += distribution.get("attack", 0)
+        self.defense += distribution.get("defense", 0)
+        self.speed += distribution.get("speed", 0)

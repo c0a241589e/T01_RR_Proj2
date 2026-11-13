@@ -1,4 +1,5 @@
 # models/enemy.py
+import random
 from models.character import Character
 import random
 
@@ -24,6 +25,8 @@ class Enemy(Character):
         3. 経過ターン(turn)を用いた計算式でステータスを強化する
         4. 強化済みのステータスで Enemy インスタンスを作成し return cls(...) する
         """
+
+        # ※ステータスは仮の値（メンバーDが ENEMY_DATA ＋ターン補正で実装予定）
         candidates = [
             name for name, data in cls.ENEMY_DATA.items()
             if data["is_boss"] == is_boss
@@ -34,6 +37,7 @@ class Enemy(Character):
 
         # 選ばれた敵の基準ステータスを取得
         base = cls.ENEMY_DATA[enemy_name]
+        reward = base["reward"]
 
         if is_boss:
             hp = base["hp"]
