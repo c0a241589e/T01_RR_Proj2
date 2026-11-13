@@ -1,5 +1,6 @@
 # models/partner_monster.py
 from models.character import Character
+import random
 
 class PartnerMonster(Character):
     def __init__(self):
@@ -9,8 +10,10 @@ class PartnerMonster(Character):
         - hp=10 で親クラス(Character)を初期化する
         - attack, defense, speed を 2〜6 の乱数で生成してセットする
         """
-        super().__init__(name="相棒", hp=10, attack=5, defense=5, speed=5)
+
+        super().__init__(name="相棒", hp=10, attack=random.randint(2, 6), defense=random.randint(2, 6), speed=random.randint(2, 6),)
         # ここに乱数処理を書く
+        
 
 
     def heal(self, amount: int) -> None:
