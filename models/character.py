@@ -27,4 +27,4 @@ class Character:
         self.hp -= amount
         if self.hp < 0:
             self.hp = 0
-        pass
+        return self.hp
