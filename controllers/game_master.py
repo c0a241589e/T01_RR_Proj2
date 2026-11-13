@@ -1,6 +1,7 @@
 import random
 
 # controllers/game_master.py
+import random
 from models.partner_monster import PartnerMonster
 from models.enemy import Enemy
 from models.map import Map
@@ -150,10 +151,11 @@ class GameMaster:
                 break
             if not enemy.is_alive():
                 Views.show_message(f"{enemy.name} を倒した！")
-                distribution = Views.get_reward_distribution(enemy.reward_points)
-                self.player.distribute_reward(distribution)
-                break
-        return self.player.is_alive()
+                # 勝利報酬のポイントを割り振る（報酬0のボスはスキップ）
+                if enemy.reward_points > 0:
+                    distribution = Views.get_reward_distribution(enemy.reward_points)
+                    self.player.distribute_reward(distribution)
+                return True
 
     def attack_round(self, enemy: Enemy) -> None:
         """
@@ -201,11 +203,19 @@ class GameMaster:
         """
         【担当：メンバーC】
         1. 4〜7の乱数ポイントを生成する。
-        2. choice = Views.get_training_choice(points) を呼んで選ばれたステータスを取得。
+        2. choice = Views.get_training_choice(points, ...) を呼んで選ばれたステータスを取得。
         3. self.player.boost_single_stat(choice, points) を実行する。
         """
-        Views.show_message("育成部屋に入った！攻撃が1上がった！")
-        self.player.attack += 1
+        points = random.randint(4, 7)
+        choice = Views.get_training_choice(
+            points,
+            self.player.attack,
+            self.player.defense,
+            self.player.speed,
+        )
+        self.player.boost_single_stat(choice, points)
+        stat_labels = {"attack": "攻撃", "defense": "防御", "speed": "素早さ"}
+        Views.show_message(f"{stat_labels.get(choice, choice)}が {points} 上がった！")
 
     def process_event(self) -> None:
         """
@@ -215,12 +225,34 @@ class GameMaster:
         3. result = self.event_manager.process_event_result(...)
         4. result["action"] == "start_battle" ならボス以外の敵を生成して process_battle(enemy) に突入させる。
         """
-        Views.show_message("イベントが発生した！しかし何も起きなかった！")
+        event_data = self.event_manager.get_random_event()
+        Views.show_event_options(event_data)
+
+        num_options = len(event_data.get("options", []))
+        valid_choices = [str(i) for i in range(1, num_options + 1)] if num_options > 0 else ["1", "2"]
+
+        while True:
+            try:
+                raw_input = Views.get_player_input(f"選択肢を選んでください ({'/'.join(valid_choices)})").strip()
+                choice_num = int(raw_input)
+                if str(choice_num) in valid_choices:
+                    choice = str(choice_num)
+                    break
+                Views.show_message(f"{', '.join(valid_choices)} のいずれかを入力してください。")
+            except ValueError:
+                Views.show_message(f"無効な入力です。数字（{', '.join(valid_choices)}）を入力してください。")
+
+        result = self.event_manager.process_event_result(event_data["id"], choice, self.player)
+        Views.show_message(result["message"])
+
+        if result.get("action") == "start_battle":
+            enemy = Enemy.create_enemy(self.current_turn, is_boss=False)
+            self.process_battle(enemy)
 
     def process_recovery(self) -> None:
         """
         【担当：メンバーC】
         クリア済み（回復）部屋の処理。player.heal() を呼び出して回復する。
         """
-        Views.show_message("HPが回復した！")
-        self.player.hp += 5
+        self.player.heal(5)
+        Views.show_message("探索済みの部屋で休憩した。HPが5回復した！")

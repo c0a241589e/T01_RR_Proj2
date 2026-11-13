@@ -72,7 +72,15 @@ class Views:
         【担当：メンバーC】
         イベントのテキストと選択肢を表示する。
         """
-        pass
+        print(f"\n=== イベント：{event_data.get('name', 'イベント')} ===")
+        print(event_data.get("description", event_data.get("text", "")))
+        options = event_data.get("options", [])
+        if isinstance(options, dict):
+            for key, text in options.items():
+                print(f"  {key}: {text}")
+        else:
+            for option in options:
+                print(f"  {option}")
 
     @staticmethod
     def show_game_rule() -> None:
@@ -90,14 +98,28 @@ class Views:
         print("=====================")
         
     @staticmethod
-    def get_training_choice(points: int) -> str:
+    def get_training_choice(points: int, current_atk: int, current_def: int, current_spd: int) -> str:
         """
         【担当：メンバーC】育成部屋用
         1. 「〇〇pt獲得！どこを上げる？」と表示。
         2. 攻撃・防御・素早さ から1つを選ばせる入力を受ける。
         3. 選ばれたステータスの英語名（"attack", "defense", "speed"）を返す。
         """
-        pass
+        print(f"\n=== 育成部屋 ===")
+        print(f"{points}pt獲得！")
+        print(f"現在のステータス -> 攻撃:{current_atk}  防御:{current_def}  素早さ:{current_spd}")
+        print("どのステータスを上げますか？")
+        print("1: 攻撃  2: 防御  3: 素早さ")
+
+        choice_map = {1: "attack", 2: "defense", 3: "speed"}
+        while True:
+            try:
+                user_input = int(input("番号を入力してください (1-3) > ").strip())
+                if user_input in choice_map:
+                    return choice_map[user_input]
+                print("1, 2, 3 のいずれかの数値を入力してください。")
+            except ValueError:
+                print("無効な入力です。数字（1, 2, 3）を入力してください。")
 
     @staticmethod
     def get_reward_distribution(total_points: int) -> dict:
@@ -107,4 +129,40 @@ class Views:
         2. 入力された値の合計が total_points になるまでやり直させる。
         3. 結果を辞書 {"hp": 〇, "attack": 〇, "defense": 〇, "speed": 〇} にして返す。
         """
-        pass
+        stat_labels = [("hp", "HP"), ("attack", "攻撃"), ("defense", "防御"), ("speed", "素早さ")]
+
+        print(f"\n戦闘に勝利した！ {total_points}pt を獲得！")
+        print("HP・攻撃・防御・素早さ に好きなように振り分けよう。")
+
+        while True:
+            distribution = {}
+            remaining = total_points
+
+            for key, label in stat_labels:
+                # 1項目ずつ、正しい値が入力されるまで繰り返す
+                while True:
+                    raw = input(f"{label}に振り分けるポイント (残り{remaining}pt) > ")
+                    try:
+                        value = int(raw)
+                    except ValueError:
+                        print("エラー：数字を入力してください。")
+                        continue
+                    if value < 0:
+                        print("エラー：マイナスの値は入力できません。")
+                        continue
+                    if value > remaining:
+                        print(f"エラー：残りポイント({remaining}pt)を超えています。")
+                        continue
+                    break
+
+                distribution[key] = value
+                remaining -= value
+
+            # 合計が total_points と一致したときだけ確定
+            if sum(distribution.values()) == total_points:
+                print(f"振り分け完了！ HP+{distribution['hp']}  攻+{distribution['attack']}"
+                      f"  防+{distribution['defense']}  速+{distribution['speed']}")
+                return distribution
+
+            print(f"エラー：合計が {total_points}pt になっていません"
+                  f"（{total_points - remaining}pt しか振り分けていません）。最初からやり直してください。\n")
