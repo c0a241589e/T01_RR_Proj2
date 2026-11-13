@@ -22,11 +22,17 @@ class PartnerMonster(Character):
         """
         pass
 
-    def boost_stats(self, target: str, points: int) -> None:
+    def boost_single_stat(self, target: str, points: int) -> None:
         """
-        【担当：メンバーC】
-        育成・イベント用のステータス強化。
-        - target に応じて、attack, defense, speed のいずれかに points を加算する
-        - マイナス（呪いなど）にも対応できるよう、そのまま加算(+=)する
+        【担当：メンバーC】育成用
+        引数 target ("attack", "defense", "speed"のいずれか) のステータスに points を加算する。
+        """
+        pass
+
+    def distribute_reward(self, distribution: dict) -> None:
+        """
+        【担当：メンバーC】戦闘勝利時用
+        引数 distribution (例: {"hp": 1, "attack": 2...}) の中身を取り出し、
+        それぞれのステータスに加算する。hp の場合は max_hp も同時に上げる。
         """
         pass

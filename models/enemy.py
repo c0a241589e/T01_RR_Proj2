@@ -1,22 +1,27 @@
 # models/enemy.py
 from models.character import Character
-from models.partner_monster import PartnerMonster
 
 class Enemy(Character):
-    def __init__(self, name: str, hp: int, attack: int, defense: int, speed: int, is_boss: bool = False):
-        """
-        【データ保持用】受け取った値を親クラスに渡すだけ。
-        """
+    # 【担当：メンバーD】ここに敵のマスターデータを辞書で定義する
+    ENEMY_DATA = {
+        "スライム": {"hp": 5, "attack": 2, "defense": 1, "speed": 2, "reward": 2, "is_boss": False},
+        "ゴブリン": {"hp": 8, "attack": 4, "defense": 2, "speed": 4, "reward": 4, "is_boss": False},
+        "魔王": {"hp": 30, "attack": 10, "defense": 10, "speed": 8, "reward": 0, "is_boss": True}
+    }
+
+    def __init__(self, name: str, hp: int, attack: int, defense: int, speed: int, reward_points: int, is_boss: bool = False):
         super().__init__(name, hp, attack, defense, speed)
+        self.reward_points = reward_points
         self.is_boss = is_boss
 
     @classmethod
     def create_enemy(cls, turn: int, is_boss: bool = False) -> 'Enemy':
         """
         【担当：メンバーD】
-        ターン数に応じた敵を生成して返すファクトリメソッド。
-        - is_boss=True の場合は、非常に強力なボスを生成して return cls(...)
-        - 通常時は turn (経過ターン) の数値を計算式に入れてステータスを決め、return cls(...)
+        1. 引数 is_boss に応じて ENEMY_DATA から該当する敵の名前を抽選する
+        2. 選ばれた敵の基準ステータスを取得する
+        3. 経過ターン(turn)を用いた計算式でステータスを強化する
+        4. 強化済みのステータスで Enemy インスタンスを作成し return cls(...) する
         """
         if is_boss:
             return cls(
