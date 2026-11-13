@@ -1,3 +1,5 @@
+import random
+
 # controllers/game_master.py
 import random
 from models.partner_monster import PartnerMonster
@@ -127,8 +129,18 @@ class GameMaster:
                 if enemy.is_boss:
                     Views.show_message("ボスからは逃げられない！")
                     continue
-                Views.show_message("うまく逃げ切れた！")
-                return False
+
+                if self.calculate_flee(self.player.speed, enemy.speed):
+                    Views.show_message("うまく逃げ切れた！")
+                    break
+                else:
+                    Views.show_message("逃走に失敗した！")
+                    if self.calculate_dodge(enemy.speed, self.player.speed):
+                        Views.show_message(f"{self.player.name}は攻撃を回避した！")
+                    else:
+                        damage = max(1, enemy.attack - self.player.defense)
+                        self.player.take_damage(damage)
+                        Views.show_message(f"{enemy.name} の攻撃！ {self.player.name} に {damage} のダメージ！")
             else:
                 Views.show_message("1か2を入力してください。")
                 continue
@@ -136,7 +148,7 @@ class GameMaster:
             # 勝敗判定
             if not self.player.is_alive():
                 Views.show_message(f"{self.player.name} は倒れてしまった…")
-                return False
+                break
             if not enemy.is_alive():
                 Views.show_message(f"{enemy.name} を倒した！")
                 # 勝利報酬のポイントを割り振る（報酬0のボスはスキップ）
@@ -156,6 +168,11 @@ class GameMaster:
             order = [(enemy, self.player), (self.player, enemy)]
 
         for attacker, defender in order:
+            if defender == self.player:
+                if self.calculate_dodge(attacker.speed, defender.speed):
+                    Views.show_message(f"{defender.name}は攻撃を回避した！")
+                    continue
+
             damage = max(1, attacker.attack - defender.defense)
             defender.take_damage(damage)
             Views.show_message(f"{attacker.name} の攻撃！ {defender.name} に {damage} のダメージ！")
@@ -168,7 +185,9 @@ class GameMaster:
         回避判定ロジック。
         防御側の素早さが高い場合、差分×5%などの確率を計算し、回避成功なら True を返す。
         """
-        pass
+        dodge_rate = defender_speed - attacker_speed
+        dodge_rate = max(0, min(100, dodge_rate))
+        return random.randint(1, 100) <= dodge_rate
 
     def calculate_flee(self, player_speed: int, enemy_speed: int) -> bool:
         """
@@ -176,7 +195,9 @@ class GameMaster:
         逃亡判定ロジック。
         基本成功率60% ＋ (player_speed - enemy_speed) × 5% で計算し、TrueかFalseを返す。
         """
-        pass
+        success_rate = 60 + (player_speed - enemy_speed) * 5
+        success_rate = max(0, min(100, success_rate))
+        return random.randint(1, 100) <= success_rate
 
     def process_training(self) -> None:
         """
