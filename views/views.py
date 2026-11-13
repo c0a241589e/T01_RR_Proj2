@@ -1,5 +1,19 @@
 # views/views.py
 from typing import Dict, Any
+import sys
+import unicodedata
+
+# 絵文字を表示できるよう、出力を UTF-8 にする（Windows の cp932 環境対策）
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+
+def _map_cell(mark: str) -> str:
+    """マス1つ分の文字列を作る。全角/絵文字(幅2)・半角(幅1)どちらでも幅4に揃える"""
+    width = sum(2 if unicodedata.east_asian_width(c) in ("W", "F") else 1 for c in mark)
+    return " " + mark + " " * (3 - width)
 
 class Views:
     @staticmethod
@@ -17,35 +31,38 @@ class Views:
         """
         【担当：リーダー】
         5x5のマップの現在地と、上下左右のヒントを表示する。
-        - P : 現在地 / ? : 不明（隣接していないマスは探索済みでも ?）
-        - 隣接マスのみ中身を表示 (x:探索済み B:戦闘 E:イベント T:育成 G:ボス)
+        - 🦕 : 現在地 / ⬛ : 不明（隣接していないマスは探索済みでも ⬛）
+        - 隣接マスのみ中身を表示 (✅:回復 👹:戦闘 🎁:イベント 💪:育成 👑:ボス)
         - hints は {"up": Room, ...} の形（Map.get_adjacent_rooms() の戻り値）
         """
         direction_labels = {"up": "上", "down": "下", "left": "左", "right": "右"}
-        type_marks = {"battle": "B", "event": "E", "training": "T", "boss": "G"}
+        # 絵文字は幅2(East Asian Width = W)のものだけを使う。⚔ や 🗡 は幅が環境で変わり、枠がずれるので使わない
+        type_marks = {"battle": "👹", "event": "🎁", "training": "💪", "boss": "👑"}
         hint_rooms = [id(room) for room in hints.values()]
 
         # --- マップ描画 ---
-        print("+---" * len(map_data.grid) + "+")
+        # セルは幅4（_map_cell で揃える）
+        border = "+----" * len(map_data.grid[0]) + "+"
+        print(border)
         for y, row in enumerate(map_data.grid):
             cells = []
             for x, room in enumerate(row):
                 if x == map_data.player_x and y == map_data.player_y:
-                    mark = "P"
+                    mark = "🦕"
                 elif id(room) in hint_rooms:
-                    # 隣接マスだけ中身が分かる（探索済みなら x、それ以外は部屋の種類）
+                    # 隣接マスだけ中身が分かる（探索済みなら ✅、それ以外は部屋の種類）
                     if room.is_cleared or room.room_type == "start":
-                        mark = "x"
+                        mark = "✅"
                     else:
-                        mark = type_marks.get(room.room_type, "?")
+                        mark = type_marks.get(room.room_type, "⬛")
                 else:
                     # 隣接していないマスは探索済みでも分からない
-                    mark = "?"
-                cells.append(f" {mark} ")
+                    mark = "⬛"
+                cells.append(_map_cell(mark))
             print("|" + "|".join(cells) + "|")
-            print("+---" * len(row) + "+")
-        print("P:現在地  x:探索済み  ?:不明")
-        print("B:戦闘  E:イベント  T:育成  G:ボス")
+            print(border)
+        print("🧍:現在地  ✅:回復  ⬛:不明")
+        print("👹:戦闘  🎁:イベント  💪:育成  👑:ボス")
 
         # --- 上下左右のヒント表示 ---
         print("\n[周囲の気配]")
