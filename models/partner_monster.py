@@ -23,14 +23,19 @@ class PartnerMonster(Character):
         - self.hp に amount を足す
         - 最大HP (self.max_hp) を超えないように調整する
         """
-        pass
+        self.hp = min(self.max_hp, self.hp + amount)
 
     def boost_single_stat(self, target: str, points: int) -> None:
         """
         【担当：メンバーC】育成用
         引数 target ("attack", "defense", "speed"のいずれか) のステータスに points を加算する。
         """
-        pass
+        if target == "attack":
+            self.attack += points
+        elif target == "defense":
+            self.defense += points
+        elif target == "speed":
+            self.speed += points
 
     def distribute_reward(self, distribution: dict) -> None:
         """
@@ -38,9 +43,10 @@ class PartnerMonster(Character):
         引数 distribution (例: {"hp": 1, "attack": 2...}) の中身を取り出し、
         それぞれのステータスに加算する。hp の場合は max_hp も同時に上げる。
         """
-        hp_up = distribution.get("hp", 0)
-        self.max_hp += hp_up
-        self.hp += hp_up
+        hp_gain = distribution.get("hp", 0)
+        if hp_gain:
+            self.max_hp += hp_gain
+            self.hp += hp_gain
         self.attack += distribution.get("attack", 0)
         self.defense += distribution.get("defense", 0)
         self.speed += distribution.get("speed", 0)

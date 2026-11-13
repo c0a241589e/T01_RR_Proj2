@@ -72,7 +72,15 @@ class Views:
         【担当：メンバーC】
         イベントのテキストと選択肢を表示する。
         """
-        pass
+        print(f"\n=== イベント：{event_data.get('name', 'イベント')} ===")
+        print(event_data.get("description", event_data.get("text", "")))
+        options = event_data.get("options", [])
+        if isinstance(options, dict):
+            for key, text in options.items():
+                print(f"  {key}: {text}")
+        else:
+            for option in options:
+                print(f"  {option}")
 
     @staticmethod
     def show_game_rule() -> None:
@@ -90,14 +98,28 @@ class Views:
         print("=====================")
         
     @staticmethod
-    def get_training_choice(points: int) -> str:
+    def get_training_choice(points: int, current_atk: int, current_def: int, current_spd: int) -> str:
         """
         【担当：メンバーC】育成部屋用
         1. 「〇〇pt獲得！どこを上げる？」と表示。
         2. 攻撃・防御・素早さ から1つを選ばせる入力を受ける。
         3. 選ばれたステータスの英語名（"attack", "defense", "speed"）を返す。
         """
-        pass
+        print(f"\n=== 育成部屋 ===")
+        print(f"{points}pt獲得！")
+        print(f"現在のステータス -> 攻撃:{current_atk}  防御:{current_def}  素早さ:{current_spd}")
+        print("どのステータスを上げますか？")
+        print("1: 攻撃  2: 防御  3: 素早さ")
+
+        choice_map = {1: "attack", 2: "defense", 3: "speed"}
+        while True:
+            try:
+                user_input = int(input("番号を入力してください (1-3) > ").strip())
+                if user_input in choice_map:
+                    return choice_map[user_input]
+                print("1, 2, 3 のいずれかの数値を入力してください。")
+            except ValueError:
+                print("無効な入力です。数字（1, 2, 3）を入力してください。")
 
     @staticmethod
     def get_reward_distribution(total_points: int) -> dict:
