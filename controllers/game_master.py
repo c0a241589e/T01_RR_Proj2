@@ -138,6 +138,10 @@ class GameMaster:
                 return False
             if not enemy.is_alive():
                 Views.show_message(f"{enemy.name} を倒した！")
+                # 勝利報酬のポイントを割り振る（報酬0のボスはスキップ）
+                if enemy.reward_points > 0:
+                    distribution = Views.get_reward_distribution(enemy.reward_points)
+                    self.player.distribute_reward(distribution)
                 return True
 
     def attack_round(self, enemy: Enemy) -> None:
