@@ -61,7 +61,7 @@ class Views:
                 cells.append(_map_cell(mark))
             print("|" + "|".join(cells) + "|")
             print(border)
-        print("🧍:現在地  ✅:回復  ⬛:不明")
+        print("🦕:現在地  ✅:回復  ⬛:不明")
         print("👹:戦闘  🎁:イベント  💪:育成  👑:ボス")
 
         # --- 上下左右のヒント表示 ---
