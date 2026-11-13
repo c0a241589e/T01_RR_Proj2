@@ -129,4 +129,40 @@ class Views:
         2. 入力された値の合計が total_points になるまでやり直させる。
         3. 結果を辞書 {"hp": 〇, "attack": 〇, "defense": 〇, "speed": 〇} にして返す。
         """
-        pass
+        stat_labels = [("hp", "HP"), ("attack", "攻撃"), ("defense", "防御"), ("speed", "素早さ")]
+
+        print(f"\n戦闘に勝利した！ {total_points}pt を獲得！")
+        print("HP・攻撃・防御・素早さ に好きなように振り分けよう。")
+
+        while True:
+            distribution = {}
+            remaining = total_points
+
+            for key, label in stat_labels:
+                # 1項目ずつ、正しい値が入力されるまで繰り返す
+                while True:
+                    raw = input(f"{label}に振り分けるポイント (残り{remaining}pt) > ")
+                    try:
+                        value = int(raw)
+                    except ValueError:
+                        print("エラー：数字を入力してください。")
+                        continue
+                    if value < 0:
+                        print("エラー：マイナスの値は入力できません。")
+                        continue
+                    if value > remaining:
+                        print(f"エラー：残りポイント({remaining}pt)を超えています。")
+                        continue
+                    break
+
+                distribution[key] = value
+                remaining -= value
+
+            # 合計が total_points と一致したときだけ確定
+            if sum(distribution.values()) == total_points:
+                print(f"振り分け完了！ HP+{distribution['hp']}  攻+{distribution['attack']}"
+                      f"  防+{distribution['defense']}  速+{distribution['speed']}")
+                return distribution
+
+            print(f"エラー：合計が {total_points}pt になっていません"
+                  f"（{total_points - remaining}pt しか振り分けていません）。最初からやり直してください。\n")
