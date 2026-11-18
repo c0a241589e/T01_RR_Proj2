@@ -84,6 +84,15 @@ class Views:
             print(f"[{c.name}] HP:{c.hp}/{c.max_hp}  攻:{c.attack}  防:{c.defense}  速:{c.speed}")
 
     @staticmethod
+    def show_player_status(player) -> None:
+        """
+        【担当：リーダー】
+        playerオブジェクトを受け取り、HP/最大HP, 攻撃, 防御, 素早さを1行でフォーマットしてprintする。
+        """
+        # TODO: player のステータス（HP/最大HP, 攻撃, 防御, 素早さ）を1行でフォーマットして表示する
+        pass
+
+    @staticmethod
     def show_event_options(event_data: Dict[str, Any]) -> None:
         """
         【担当：メンバーC】
@@ -143,8 +152,9 @@ class Views:
         """
         【担当：リーダー】戦闘勝利時用
         1. total_points をHP・攻撃・防御・素早さにどう振り分けるか、ループで1つずつ入力を受ける。
-        2. 入力された値の合計が total_points になるまでやり直させる。
-        3. 結果を辞書 {"hp": 〇, "attack": 〇, "defense": 〇, "speed": 〇} にして返す。
+        2. 途中で残りポイントが0になったら、以降の項目は入力をスキップして0を代入し、即座に辞書を返す。
+        3. 入力された値の合計が total_points になるまでやり直させる。
+        4. 結果を辞書 {"hp": 〇, "attack": 〇, "defense": 〇, "speed": 〇} にして返す。
         """
         stat_labels = [("hp", "HP"), ("attack", "攻撃"), ("defense", "防御"), ("speed", "素早さ")]
 
@@ -156,6 +166,9 @@ class Views:
             remaining = total_points
 
             for key, label in stat_labels:
+                # TODO: 途中で残りポイント(remaining)が0になったら、以降の項目は入力をスキップして0を代入する処理を実装する
+                pass
+
                 # 1項目ずつ、正しい値が入力されるまで繰り返す
                 while True:
                     raw = input(f"{label}に振り分けるポイント (残り{remaining}pt) > ")
@@ -175,6 +188,7 @@ class Views:
                 distribution[key] = value
                 remaining -= value
 
+            # TODO: 残りポイントが0になった時点で残りの項目を0埋めし、即座に辞書(distribution)を返すようにする
             # 合計が total_points と一致したときだけ確定
             if sum(distribution.values()) == total_points:
                 print(f"振り分け完了！ HP+{distribution['hp']}  攻+{distribution['attack']}"
