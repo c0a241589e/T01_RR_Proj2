@@ -33,6 +33,7 @@ class GameMaster:
 
         while self.current_turn <= self.max_turn:
             Views.show_message(f"\n===== ターン {self.current_turn} / {self.max_turn} =====")
+            # TODO: 【担当：リーダー】毎ターン開始位置で Views.show_player_status(self.player) を呼ぶ
             room = self.process_room_select()
 
             # 部屋の種類に応じて処理を分岐
@@ -41,10 +42,12 @@ class GameMaster:
             elif room.room_type == "boss":
                 # ボス部屋に入ったらその場でボス戦 → 勝敗判定してゲーム終了
                 Views.show_message("\n===== ボス部屋だ！ボスが現れた！ =====")
+                # TODO: 【担当：メンバーD】引数に player_total_stats=(self.player.attack + self.player.defense + self.player.speed) を渡す
                 boss = Enemy.create_enemy(self.current_turn, is_boss=True)
                 self.judge_result(self.process_battle(boss))
                 return
             elif room.room_type == "battle":
+                # TODO: 【担当：メンバーD】引数に player_total_stats=(self.player.attack + self.player.defense + self.player.speed) を渡す
                 self.process_battle(Enemy.create_enemy(self.current_turn))
             elif room.room_type == "training":
                 self.process_training()
@@ -63,6 +66,7 @@ class GameMaster:
 
         # 15ターン経過 → ボス戦
         Views.show_message("\n===== ボスが現れた！ =====")
+        # TODO: 【担当：メンバーD】引数に player_total_stats=(self.player.attack + self.player.defense + self.player.speed) を渡す
         boss = Enemy.create_enemy(self.current_turn, is_boss=True)
         self.judge_result(self.process_battle(boss))
 
@@ -84,11 +88,13 @@ class GameMaster:
         部屋選択の処理。
         1. self.map.get_adjacent_rooms() でヒントを取得
         2. Views.show_map() で表示し、Views.get_player_input() で入力を受ける
+           ※ w/a/s/d 入力に変更する（w: up, s: down, a: left, d: right）
         3. self.map.move_player() で移動し、Roomを return する
         """
         hints = self.map.get_adjacent_rooms()
         Views.show_map(self.map, hints)
 
+        # TODO: 【担当：リーダー】w/a/s/d 入力に変更する
         while True:
             direction = Views.get_player_input(
                 f"どの方向へ進む？ {list(hints.keys())}"
@@ -246,6 +252,7 @@ class GameMaster:
         Views.show_message(result["message"])
 
         if result.get("action") == "start_battle":
+            # TODO: 【担当：メンバーD】引数に player_total_stats=(self.player.attack + self.player.defense + self.player.speed) を渡す
             enemy = Enemy.create_enemy(self.current_turn, is_boss=False)
             self.process_battle(enemy)
 
