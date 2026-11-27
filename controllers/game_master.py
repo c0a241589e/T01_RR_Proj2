@@ -100,13 +100,33 @@ class GameMaster:
         }
 
         while True:
+            adjacent_rooms = self.map.get_adjacent_rooms()
+
+        # 移動可能な方向がない場合
+            if not adjacent_rooms:
+                Views.show_message("移動できる方向がありません。")
+                continue
+
+        # 移動可能な方向を表示する
+            available_directions = ", ".join(
+                key[0] for key in adjacent_rooms.keys()
+            )
+
             raw = Views.get_player_input(
-                f"どの方向へ進む？ {list(hints.keys())} (w/a/s/d, U/D/R/L も可)"
+                f"どの方向へ進む？ ({available_directions}) (w/a/s/d, U/D/R/L も可)"
             ).strip()
+
             direction = key_aliases.get(raw, raw.lower())
-            if direction in hints:
+
+        # 移動可能な方向の場合のみ移動
+            if direction in adjacent_rooms:
                 return self.map.move_player(direction)
-            Views.show_message("その方向には進めない！")
+
+        # 移動できない方向を入力した場合
+            Views.show_message(
+                f"進めない方向です。{available_directions} から選択してください。"
+            )
+
 
     def process_battle(self, enemy: Enemy) -> bool:
         """
