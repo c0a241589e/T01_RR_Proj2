@@ -64,6 +64,7 @@ class GameMaster:
                 self.judge_result(False)
                 return
 
+            Views.wait_for_enter()
             self.current_turn += 1
 
         # 15ターン経過 → ボス戦
