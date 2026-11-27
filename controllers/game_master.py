@@ -87,12 +87,20 @@ class GameMaster:
         3. self.map.move_player() で移動し、Roomを return する
         """
         hints = self.map.get_adjacent_rooms()
-        Views.show_map(self.map, hints)
+        Views.show_map(self.map, hints, self.player)
+
+        # 短縮キー（大文字小文字を区別する）
+        # 小文字 w/a/s/d = WASD、大文字 U/D/R/L = 方向の頭文字
+        key_aliases = {
+            "w": "up", "a": "left", "s": "down", "d": "right",
+            "U": "up", "D": "down", "R": "right", "L": "left",
+        }
 
         while True:
-            direction = Views.get_player_input(
-                f"どの方向へ進む？ {list(hints.keys())}"
-            ).strip().lower()
+            raw = Views.get_player_input(
+                f"どの方向へ進む？ {list(hints.keys())} (w/a/s/d, U/D/R/L も可)"
+            ).strip()
+            direction = key_aliases.get(raw, raw.lower())
             if direction in hints:
                 return self.map.move_player(direction)
             Views.show_message("その方向には進めない！")
