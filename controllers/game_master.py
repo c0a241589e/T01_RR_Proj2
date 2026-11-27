@@ -132,7 +132,8 @@ class GameMaster:
         Views.show_message(f"{enemy.name} が現れた！")
         while True:
             Views.show_battle_status(self.player, enemy)
-            select_action = Views.get_player_input("1:戦う　2:逃げる").strip()
+            prompt = "1:戦う" if enemy.is_boss else "1:戦う　2:逃げる"
+            select_action = Views.get_player_input(prompt).strip()
 
             if select_action == "1":
                 self.attack_round(enemy)
@@ -153,7 +154,10 @@ class GameMaster:
                         self.player.take_damage(damage)
                         Views.show_message(f"{enemy.name} の攻撃！ {self.player.name} に {damage} のダメージ！")
             else:
-                Views.show_message("1か2を入力してください。")
+                if enemy.is_boss:
+                    Views.show_message("1を入力してください。")
+                else:
+                    Views.show_message("1か2を入力してください。")
                 continue
 
             # 勝敗判定

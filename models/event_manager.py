@@ -8,7 +8,7 @@ class EventManager:
         """
         【担当：メンバーC】
         7種類のイベントデータを辞書やリストなどで定義しておく。
-        （謎の泉、不思議な果実、謎の結晶、休息できる隠し部屋、呪われた宝箱、謎のモンスターとの遭遇、毒ガスの罠）
+        （謎の泉、不思議な果実、謎の結晶、休息できる隠し部屋、呪われた宝箱、謎のモンスターとの遭遇、毒ガスの罠、暴走する魔力、生命交換の契約、星の導き、運命のサイコロ）
         """
         self.events: List[Dict[str, Any]] = [
             {
@@ -73,6 +73,34 @@ class EventManager:
                 "description": "部屋に入ると毒ガスが噴き出した！",
                 "options": [
                     "1: 回避を試みる",
+                ],
+            },
+            {
+                "id": 10,
+                "name": "生命交換の契約",
+                "description": "謎の存在が能力と引き換えに生命力を与えると提案してきた。",
+                "options": [
+                    "1: 契約を結ぶ",
+                    "2: 契約を断る",
+                ],
+            },
+            {
+                "id": 11,
+                "name": "星の導き",
+                "description": "不思議な光が現れ、能力を鍛える機会を与えてくれた。",
+                "options": [
+                    "1: 攻撃力を鍛える",
+                    "2: 防御力を鍛える",
+                    "3: 素早さを鍛える",
+                ],
+            },
+            {
+                "id": 12,
+                "name": "運命のサイコロ",
+                "description": "不思議なサイコロを見つけた。運命を試してみる？",
+                "options": [
+                    "1: サイコロを振る",
+                    "2: 振らずに立ち去る",
                 ],
             },
         ]
@@ -248,5 +276,86 @@ class EventManager:
                     "message": f"{name}は毒ガスを避けきれなかった！HPが{dmg}減少した！",
                     "action": "none",
                 }
+        elif event_id == 9:  # 9. 暴走する魔力
+            if choice == "1":
+                target = random.choice(["attack", "defense", "speed"])
+                dmg = 15
+
+                player.take_damage(dmg)
+                player.boost_single_stat(target, 15)
+
+                return {
+                    "message": f"暴走する魔力を受け入れた！HPが{dmg}減少したが、{stat_labels[target]}が15上がった！",
+                    "action": "none"
+                }
+
+            return {
+                "message": "危険を感じて魔力を拒んだ。",
+                "action": "none"
+            }
+
+        elif event_id == 10:  # 10. 生命交換の契約
+            if choice == "1":
+                player.speed = max(1, player.speed - 5)
+                player.heal(player.max_hp)
+
+                return {
+                    "message": "契約を結んだ！素早さが5下がった代わりに、HPが全回復した！",
+                    "action": "none"
+                }
+
+            return {
+                "message": "契約を断った。何も起こらなかった。",
+                "action": "none"
+            }
+
+        elif event_id == 11:  # 11. 星の導き
+            if choice == "1":
+                player.boost_single_stat("attack", 8)
+
+                return {
+                    "message": "星の導きによって攻撃力が8上がった！",
+                    "action": "none"
+                }
+
+            elif choice == "2":
+                player.boost_single_stat("defense", 8)
+
+                return {
+                    "message": "星の導きによって防御力が8上がった！",
+                    "action": "none"
+                }
+
+            elif choice == "3":
+                player.boost_single_stat("speed", 8)
+
+                return {
+                    "message": "星の導きによって素早さが8上がった！",
+                    "action": "none"
+                }
+
+        elif event_id == 12:  # 12. 運命のサイコロ
+            if choice == "1":
+                if random.random() < 0.5:
+                    player.heal(20)
+
+                    return {
+                        "message": "運命のサイコロが幸運をもたらした！HPが20回復した！",
+                        "action": "none"
+                    }
+
+                else:
+                    player.take_damage(10)
+
+                    return {
+                        "message": "運命のサイコロが不運をもたらした！HPが10減少した！",
+                        "action": "none"
+                    }
+
+            return {
+                "message": "サイコロを振らずに立ち去った。",
+                "action": "none"
+            }
+
 
         return {"message": "何も起こらなかった。", "action": "none"}
