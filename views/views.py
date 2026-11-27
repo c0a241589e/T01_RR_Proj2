@@ -45,6 +45,11 @@ class Views:
         return _read_input(f"{prompt} > ")
 
     @staticmethod
+    def wait_for_enter() -> None:
+        """ Enterキーが押されるまで待機する """
+        input("Enterキーで次のターンへ...")
+
+    @staticmethod
     def get_partner_name(max_length: int = 10) -> str:
         """
         ゲーム開始時に相棒の名前を入力してもらう。
