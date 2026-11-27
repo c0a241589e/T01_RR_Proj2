@@ -56,8 +56,9 @@ class Enemy(Character):
             )
 
         # Danger_Levelの計算
-        danger_level = (turn // 5) + (player_total_stats // 30) + 1
-        danger_level = max(1, min(3, danger_level))
+        turn_level = (turn // 5) + 1
+        player_level = (player_total_stats // 30) + 1
+        danger_level = max(1, min(3, max(turn_level, player_level)))
 
         # Danger_LevelによるTier決定
         if danger_level == 1:
