@@ -73,7 +73,6 @@ class Enemy(Character):
             enemy for enemy in cls.ENEMY_DATA[enemy_tier]
             if not enemy["is_boss"]
         ]
-
         base = random.choice(candidates)
         enemy_name = base["name"]
 
