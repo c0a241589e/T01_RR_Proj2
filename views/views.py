@@ -27,7 +27,13 @@ class Views:
         return input(f"{prompt} > ")
 
     @staticmethod
-    def show_map(map_data, hints: dict) -> None:
+    def show_player_status(player) -> None:
+        """ 相棒の現在のステータスを表示する（育成部屋の表示形式 + HP/最大HP） """
+        print(f"\n現在のステータス -> HP:{player.hp}/{player.max_hp}  攻撃:{player.attack}"
+              f"  防御:{player.defense}  素早さ:{player.speed}")
+
+    @staticmethod
+    def show_map(map_data, hints: dict, player=None) -> None:
         """
         【担当：リーダー】
         5x5のマップの現在地と、上下左右のヒントを表示する。
@@ -63,6 +69,10 @@ class Views:
             print(border)
         print("🦕:現在地  ✅:回復  ⬛:不明")
         print("👹:戦闘  🎁:イベント  💪:育成  👑:ボス")
+
+        # --- 相棒のステータス表示（マップの下） ---
+        if player is not None:
+            Views.show_player_status(player)
 
         # --- 上下左右のヒント表示 ---
         print("\n[周囲の気配]")
@@ -119,6 +129,7 @@ class Views:
         print("【マップと移動】")
         print("  1. マップは5x5のマスで、左下のスタート地点から始まります。")
         print("  2. 1ターンに1回、上下左右（up / down / left / right）のどれかへ移動します。")
+        print("     短縮キー: w/a/s/d（上/左/下/右）、または頭文字の大文字 U/D/R/L も使えます。")
         print("  3. 部屋の中身が分かるのは、今いるマスの上下左右の部屋だけです。")
         print("  4. 移動できるのは15ターンまで。15ターンが経過するとボスが現れます。")
         print()
@@ -179,15 +190,19 @@ class Views:
         print("HP・攻撃・防御・素早さ に好きなように振り分けよう。")
 
         while True:
-            distribution = {}
+            distribution = {key: 0 for key, _ in stat_labels}
             remaining = total_points
 
             for key, label in stat_labels:
+                # ポイントを使い切ったら、残りのステータスは 0 のまま入力を打ち切る
+                if remaining == 0:
+                    break
                 # 1項目ずつ、正しい値が入力されるまで繰り返す
                 while True:
-                    raw = input(f"{label}に振り分けるポイント (残り{remaining}pt) > ")
+                    raw = input(f"{label}に振り分けるポイント (残り{remaining}pt / Enterのみで0) > ").strip()
                     try:
-                        value = int(raw)
+                        # 何も入力せず Enter だけなら 0 とみなす
+                        value = int(raw) if raw else 0
                     except ValueError:
                         print("エラー：数字を入力してください。")
                         continue
@@ -202,11 +217,25 @@ class Views:
                 distribution[key] = value
                 remaining -= value
 
-            # 合計が total_points と一致したときだけ確定
-            if sum(distribution.values()) == total_points:
+            # 合計が total_points と一致しないときは最初からやり直し
+            if sum(distribution.values()) != total_points:
+                print(f"エラー：合計が {total_points}pt になっていません"
+                      f"（{total_points - remaining}pt しか振り分けていません）。最初からやり直してください。\n")
+                continue
+
+            # 最終確認：振り分け一覧を表示して y/n を受け付ける
+            print("\n--- 振り分け内容の確認 ---")
+            for key, label in stat_labels:
+                print(f"  {label}: +{distribution[key]}")
+            while True:
+                answer = input("この内容で確定しますか？ (y/n) > ").strip().lower()
+                if answer in ("y", "n"):
+                    break
+                print("y か n を入力してください。")
+
+            if answer == "y":
                 print(f"振り分け完了！ HP+{distribution['hp']}  攻+{distribution['attack']}"
                       f"  防+{distribution['defense']}  速+{distribution['speed']}")
                 return distribution
 
-            print(f"エラー：合計が {total_points}pt になっていません"
-                  f"（{total_points - remaining}pt しか振り分けていません）。最初からやり直してください。\n")
+            print("振り分けを最初からやり直します。\n")
