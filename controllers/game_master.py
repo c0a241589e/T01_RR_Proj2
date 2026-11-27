@@ -41,11 +41,13 @@ class GameMaster:
             elif room.room_type == "boss":
                 # ボス部屋に入ったらその場でボス戦 → 勝敗判定してゲーム終了
                 Views.show_message("\n===== ボス部屋だ！ボスが現れた！ =====")
-                boss = Enemy.create_enemy(self.current_turn, is_boss=True)
+                player_total_stats = self.player.attack + self.player.defense + self.player.speed
+                boss = Enemy.create_enemy(self.current_turn, player_total_stats, is_boss=True)
                 self.judge_result(self.process_battle(boss))
                 return
             elif room.room_type == "battle":
-                self.process_battle(Enemy.create_enemy(self.current_turn))
+                player_total_stats = self.player.attack + self.player.defense + self.player.speed
+                self.process_battle(Enemy.create_enemy(self.current_turn, player_total_stats))
             elif room.room_type == "training":
                 self.process_training()
             elif room.room_type == "event":
@@ -63,7 +65,8 @@ class GameMaster:
 
         # 15ターン経過 → ボス戦
         Views.show_message("\n===== ボスが現れた！ =====")
-        boss = Enemy.create_enemy(self.current_turn, is_boss=True)
+        player_total_stats = self.player.attack + self.player.defense + self.player.speed
+        boss = Enemy.create_enemy(self.current_turn, player_total_stats, is_boss=True)
         self.judge_result(self.process_battle(boss))
 
     def judge_result(self, boss_defeated: bool) -> None:
@@ -246,7 +249,8 @@ class GameMaster:
         Views.show_message(result["message"])
 
         if result.get("action") == "start_battle":
-            enemy = Enemy.create_enemy(self.current_turn, is_boss=False)
+            player_total_stats = self.player.attack + self.player.defense + self.player.speed
+            enemy = Enemy.create_enemy(self.current_turn,player_total_stats, is_boss=False)
             self.process_battle(enemy)
 
     def process_recovery(self) -> None:
