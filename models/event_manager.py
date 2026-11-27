@@ -14,7 +14,7 @@ class EventManager:
             {
                 "id": 1,
                 "name": "謎の泉",
-                "description": "モンスターが不思議な泉を見つけた。",
+                "description": "{name}が不思議な泉を見つけた。",
                 "options": [
                     "1: 泉の水を飲む",
                     "2: 大量に飲む",
@@ -32,7 +32,7 @@ class EventManager:
             {
                 "id": 3,
                 "name": "謎の結晶",
-                "description": "結晶の力がモンスターに流れ込む。どの結晶を選ぶ？",
+                "description": "結晶の力が{name}に流れ込む。どの結晶を選ぶ？",
                 "options": [
                     "1: 攻撃型の結晶",
                     "2: 防御型の結晶",
@@ -97,11 +97,12 @@ class EventManager:
             "defense": "防御力",
             "speed": "素早さ",
         }
+        name = player.name  # メッセージに相棒の名前を入れる
 
         if event_id == 1:  # 1. 謎の泉
             if choice in ("1", "A", "a"):
                 player.heal(20)
-                return {"message": "泉の水を飲んだ！HPが20回復した！", "action": "none"}
+                return {"message": f"{name}は泉の水を飲んだ！HPが20回復した！", "action": "none"}
             else:
                 hp_diff = random.randint(-5, 5)
                 atk_diff = random.randint(-3, 5)
@@ -119,7 +120,7 @@ class EventManager:
 
                 return {
                     "message": (
-                        f"泉の水を大量に飲んだ！全能力がランダムに変化した！"
+                        f"{name}は泉の水を大量に飲んだ！全能力がランダムに変化した！"
                         f"（最大HP:{hp_diff:+d}, 攻撃:{atk_diff:+d}, 防御:{def_diff:+d}, 素早さ:{spd_diff:+d}）"
                     ),
                     "action": "none",
@@ -133,25 +134,25 @@ class EventManager:
                     dmg = random.randint(1, 5)
                     player.take_damage(dmg)
                     return {
-                        "message": f"光る果実を食べて攻撃力が5上がった！しかしお腹を壊してHPが{dmg}減少した…",
+                        "message": f"{name}は光る果実を食べて攻撃力が5上がった！しかしお腹を壊してHPが{dmg}減少した…",
                         "action": "none",
                     }
-                return {"message": "光る果実を食べた！攻撃力が5上がった！", "action": "none"}
-            return {"message": "果実には触れずに立ち去った。", "action": "none"}
+                return {"message": f"{name}は光る果実を食べた！攻撃力が5上がった！", "action": "none"}
+            return {"message": f"{name}は果実には触れずに立ち去った。", "action": "none"}
 
         elif event_id == 3:  # 3. 謎の結晶
             if choice == "1":
                 player.boost_single_stat("attack", 8)
                 player.defense = max(0, player.defense - 3)
                 return {
-                    "message": "攻撃型の結晶を選んだ！攻撃力が8上がり、防御力が3下がった！",
+                    "message": f"{name}は攻撃型の結晶を選んだ！攻撃力が8上がり、防御力が3下がった！",
                     "action": "none",
                 }
             elif choice == "2":
                 player.boost_single_stat("defense", 8)
                 player.speed = max(0, player.speed - 3)
                 return {
-                    "message": "防御型の結晶を選んだ！防御力が8上がり、素早さが3下がった！",
+                    "message": f"{name}は防御型の結晶を選んだ！防御力が8上がり、素早さが3下がった！",
                     "action": "none",
                 }
             else:
@@ -159,14 +160,14 @@ class EventManager:
                 player.max_hp = max(1, player.max_hp - 5)
                 player.hp = min(player.hp, player.max_hp)
                 return {
-                    "message": "俊敏型の結晶を選んだ！素早さが8上がり、最大HPが5下がった！",
+                    "message": f"{name}は俊敏型の結晶を選んだ！素早さが8上がり、最大HPが5下がった！",
                     "action": "none",
                 }
 
         elif event_id == 5:  # 5. 休息できる隠し部屋
             if choice == "1":
                 player.heal(30)
-                return {"message": "静かな部屋でゆっくり休んだ！HPが30回復した！", "action": "none"}
+                return {"message": f"{name}は静かな部屋でゆっくり休んだ！HPが30回復した！", "action": "none"}
             else:
                 target = random.choice(["attack", "defense"])
                 gain = random.randint(1, 5)
@@ -174,7 +175,7 @@ class EventManager:
                 player.boost_single_stat(target, gain)
                 player.take_damage(dmg)
                 return {
-                    "message": f"特訓を行った！HPが{dmg}減少したが、{stat_labels[target]}が{gain}上がった！",
+                    "message": f"{name}は特訓を行った！HPが{dmg}減少したが、{stat_labels[target]}が{gain}上がった！",
                     "action": "none",
                 }
 
@@ -201,12 +202,12 @@ class EventManager:
 
                 return {
                     "message": (
-                        f"宝箱を開けた！{stat_labels[up_stat]}が15上昇したが、"
+                        f"{name}は宝箱を開けた！{stat_labels[up_stat]}が15上昇したが、"
                         f"呪いを受けて{stat_labels[down_stat]}が{curse_loss}低下した！"
                     ),
                     "action": "none",
                 }
-            return {"message": "宝箱を無視して通り過ぎた。何も起こらなかった。", "action": "none"}
+            return {"message": f"{name}は宝箱を無視して通り過ぎた。何も起こらなかった。", "action": "none"}
 
         elif event_id == 7:  # 7. 謎のモンスターとの遭遇
             if choice == "1":
@@ -217,19 +218,19 @@ class EventManager:
                 else:
                     player.boost_single_stat(target, gain)
                 return {
-                    "message": f"野生のモンスターと仲良くなった！{stat_labels[target]}が{gain}上がった！",
+                    "message": f"{name}は野生のモンスターと仲良くなった！{stat_labels[target]}が{gain}上がった！",
                     "action": "none",
                 }
             elif choice == "2":
                 return {
-                    "message": "野生のモンスターを挑発した！特別な戦闘が発生した！",
+                    "message": f"{name}は野生のモンスターを挑発した！特別な戦闘が発生した！",
                     "action": "start_battle",
                 }
             else:
                 dmg = random.randint(1, 5)
                 player.take_damage(dmg)
                 return {
-                    "message": f"HPを{dmg}消費して急いで部屋を通過した！",
+                    "message": f"{name}はHPを{dmg}消費して急いで部屋を通過した！",
                     "action": "none",
                 }
 
@@ -237,14 +238,14 @@ class EventManager:
             # 素早さが高い場合（基準値10以上）は回避して無傷、低い場合はHPが1~5減少
             if player.speed >= 10:
                 return {
-                    "message": "毒ガスが噴き出したが、高い素早さで回避し無傷だった！",
+                    "message": f"毒ガスが噴き出したが、{name}は高い素早さで回避し無傷だった！",
                     "action": "none",
                 }
             else:
                 dmg = random.randint(1, 5)
                 player.take_damage(dmg)
                 return {
-                    "message": f"毒ガスを避けきれなかった！HPが{dmg}減少した！",
+                    "message": f"{name}は毒ガスを避けきれなかった！HPが{dmg}減少した！",
                     "action": "none",
                 }
 
