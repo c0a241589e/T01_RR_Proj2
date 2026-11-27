@@ -3,7 +3,7 @@ from models.character import Character
 import random
 
 class PartnerMonster(Character):
-    def __init__(self):
+    def __init__(self, name: str = "相棒"):
         """
         【担当：メンバーD】
         初期ステータスのランダム生成。
@@ -11,7 +11,7 @@ class PartnerMonster(Character):
         - attack, defense, speed を 2〜6 の乱数で生成してセットする
         """
 
-        super().__init__(name="相棒", hp=10, attack=random.randint(2, 6), defense=random.randint(2, 6), speed=random.randint(2, 6),)
+        super().__init__(name=name, hp=10, attack=random.randint(2, 6), defense=random.randint(2, 6), speed=random.randint(2, 6),)
         # ここに乱数処理を書く
         
 

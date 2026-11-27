@@ -29,6 +29,9 @@ class GameMaster:
         """
 
         Views.show_game_rule()
+        # 相棒の名前を決める
+        self.player.name = Views.get_partner_name()
+        Views.show_message(f"\n{self.player.name}と一緒にダンジョンへ出発だ！")
         self.map.generate_grid()
 
         while self.current_turn <= self.max_turn:
@@ -74,9 +77,9 @@ class GameMaster:
         """
         self.is_running = False
         if boss_defeated and self.player.is_alive():
-            Views.show_message("\n★★★ ボスを倒した！ GAME CLEAR ★★★")
+            Views.show_message(f"\n★★★ {self.player.name}はボスを倒した！ GAME CLEAR ★★★")
         else:
-            Views.show_message("\n相棒は力尽きた…… GAME OVER")
+            Views.show_message(f"\n{self.player.name}は力尽きた…… GAME OVER")
 
     def process_room_select(self)-> Room:
         """
@@ -140,7 +143,7 @@ class GameMaster:
                     continue
 
                 if self.calculate_flee(self.player.speed, enemy.speed):
-                    Views.show_message("うまく逃げ切れた！")
+                    Views.show_message(f"{self.player.name}はうまく逃げ切れた！")
                     break
                 else:
                     Views.show_message("逃走に失敗した！")
@@ -224,10 +227,11 @@ class GameMaster:
             self.player.attack,
             self.player.defense,
             self.player.speed,
+            self.player.name,
         )
         self.player.boost_single_stat(choice, points)
         stat_labels = {"attack": "攻撃", "defense": "防御", "speed": "素早さ"}
-        Views.show_message(f"{stat_labels.get(choice, choice)}が {points} 上がった！")
+        Views.show_message(f"{self.player.name}の{stat_labels.get(choice, choice)}が {points} 上がった！")
 
     def process_event(self) -> None:
         """
@@ -238,7 +242,10 @@ class GameMaster:
         4. result["action"] == "start_battle" ならボス以外の敵を生成して process_battle(enemy) に突入させる。
         """
         event_data = self.event_manager.get_random_event()
-        Views.show_event_options(event_data)
+        # 説明文の {name} を相棒の名前に置き換えて表示する（元データは書き換えない）
+        display_data = dict(event_data)
+        display_data["description"] = event_data.get("description", "").replace("{name}", self.player.name)
+        Views.show_event_options(display_data)
 
         num_options = len(event_data.get("options", []))
         valid_choices = [str(i) for i in range(1, num_options + 1)] if num_options > 0 else ["1", "2"]
@@ -267,4 +274,4 @@ class GameMaster:
         クリア済み（回復）部屋の処理。player.heal() を呼び出して回復する。
         """
         self.player.heal(5)
-        Views.show_message("探索済みの部屋で休憩した。HPが5回復した！")
+        Views.show_message(f"{self.player.name}は探索済みの部屋で休憩した。HPが5回復した！")

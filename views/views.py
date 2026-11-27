@@ -15,6 +15,24 @@ def _map_cell(mark: str) -> str:
     width = sum(2 if unicodedata.east_asian_width(c) in ("W", "F") else 1 for c in mark)
     return " " + mark + " " * (3 - width)
 
+# どの入力場面でも、これを入力するとルールを表示する（大文字小文字・全角？は問わない）
+RULE_COMMANDS = ("rule", "?", "？")
+
+
+def _read_input(prompt: str) -> str:
+    """
+    すべての入力の共通窓口。
+    ルール確認コマンドが入力されたらルールを表示し、同じ質問をもう一度出す。
+    """
+    while True:
+        raw = input(prompt)
+        if raw.strip().lower() in RULE_COMMANDS:
+            Views.show_game_rule()
+            print()
+            continue
+        return raw
+
+
 class Views:
     @staticmethod
     def show_message(text: str) -> None:
@@ -24,12 +42,30 @@ class Views:
     @staticmethod
     def get_player_input(prompt: str) -> str:
         """ 汎用的な入力受け付け """
-        return input(f"{prompt} > ")
+        return _read_input(f"{prompt} > ")
+
+    @staticmethod
+    def get_partner_name(max_length: int = 10) -> str:
+        """
+        ゲーム開始時に相棒の名前を入力してもらう。
+        - 何も入力せず Enter なら「相棒」にする
+        - max_length 文字を超える名前はやり直し
+        """
+        print("\n🦕 相棒モンスターが仲間になった！")
+        while True:
+            name = _read_input(f"相棒の名前を決めてください（{max_length}文字以内 / Enterのみで「相棒」） > ").strip()
+            if not name:
+                name = "相棒"
+            if len(name) > max_length:
+                print(f"名前は{max_length}文字以内にしてください。")
+                continue
+            print(f"相棒の名前は「{name}」に決まった！")
+            return name
 
     @staticmethod
     def show_player_status(player) -> None:
         """ 相棒の現在のステータスを表示する（育成部屋の表示形式 + HP/最大HP） """
-        print(f"\n現在のステータス -> HP:{player.hp}/{player.max_hp}  攻撃:{player.attack}"
+        print(f"\n{player.name}の現在のステータス -> HP:{player.hp}/{player.max_hp}  攻撃:{player.attack}"
               f"  防御:{player.defense}  素早さ:{player.speed}")
 
     @staticmethod
@@ -118,6 +154,7 @@ class Views:
         print("=========== ゲームのルール ===========")
         print("【目的】")
         print("  相棒モンスター🦕を育てながらダンジョンを探索し、最後に待つボスを倒そう！")
+        print("  相棒のHPが0になるとゲームオーバーです。")
         print()
         print("【相棒のステータス】")
         print("  HP     : 0になると力尽きる。")
@@ -143,14 +180,19 @@ class Views:
         print("【戦闘】")
         print("  1. 毎ターン「1:戦う」か「2:逃げる」を選びます。")
         print("  2. 戦う : 素早さが高い方から攻撃します（同じなら相棒が先攻）。")
+        print("  3. 回避 : 相棒の素早さが敵より高いほど、敵の攻撃を回避しやすくなります。")
         print("  4. 逃げる : 失敗すると敵の攻撃を受けます。")
         print()
         print("【クリア条件】")
         print("  ボスに勝利するとゲームクリア！ボス戦では「逃げる」ことはできません。")
+        print("  ボスはとても強いので、15ターンの間にしっかり相棒を育てよう。")
+        print()
+        print("【ルール確認】")
+        print("  入力を求められたとき、いつでも「rule」または「?」と入力するとこのルールを表示します。")
         print("======================================")
         
     @staticmethod
-    def get_training_choice(points: int, current_atk: int, current_def: int, current_spd: int) -> str:
+    def get_training_choice(points: int, current_atk: int, current_def: int, current_spd: int, name: str = "相棒") -> str:
         """
         【担当：メンバーC】育成部屋用
         1. 「〇〇pt獲得！どこを上げる？」と表示。
@@ -159,14 +201,14 @@ class Views:
         """
         print(f"\n=== 育成部屋 ===")
         print(f"{points}pt獲得！")
-        print(f"現在のステータス -> 攻撃:{current_atk}  防御:{current_def}  素早さ:{current_spd}")
+        print(f"{name}の現在のステータス -> 攻撃:{current_atk}  防御:{current_def}  素早さ:{current_spd}")
         print("どのステータスを上げますか？")
         print("1: 攻撃  2: 防御  3: 素早さ")
 
         choice_map = {1: "attack", 2: "defense", 3: "speed"}
         while True:
             try:
-                user_input = int(input("番号を入力してください (1-3) > ").strip())
+                user_input = int(_read_input("番号を入力してください (1-3) > ").strip())
                 if user_input in choice_map:
                     return choice_map[user_input]
                 print("1, 2, 3 のいずれかの数値を入力してください。")
@@ -196,7 +238,7 @@ class Views:
                     break
                 # 1項目ずつ、正しい値が入力されるまで繰り返す
                 while True:
-                    raw = input(f"{label}に振り分けるポイント (残り{remaining}pt / Enterのみで0) > ").strip()
+                    raw = _read_input(f"{label}に振り分けるポイント (残り{remaining}pt / Enterのみで0) > ").strip()
                     try:
                         # 何も入力せず Enter だけなら 0 とみなす
                         value = int(raw) if raw else 0
@@ -225,7 +267,7 @@ class Views:
             for key, label in stat_labels:
                 print(f"  {label}: +{distribution[key]}")
             while True:
-                answer = input("この内容で確定しますか？ (y/n) > ").strip().lower()
+                answer = _read_input("この内容で確定しますか？ (y/n) > ").strip().lower()
                 if answer in ("y", "n"):
                     break
                 print("y か n を入力してください。")
