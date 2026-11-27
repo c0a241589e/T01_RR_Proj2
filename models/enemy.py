@@ -69,9 +69,13 @@ class Enemy(Character):
             enemy_tier = random.choices([2, 3], weights=[15, 85])[0]
 
         # 決定したTierから敵をランダムに選択
-        enemy_data = random.choice(cls.ENEMY_DATA[enemy_tier])
-        enemy_name = enemy_data["name"]
-        base = enemy_data
+        candidates = [
+            enemy for enemy in cls.ENEMY_DATA[enemy_tier]
+            if not enemy["is_boss"]
+        ]
+
+        base = random.choice(candidates)
+        enemy_name = base["name"]
 
         # Danger Levelと敵Tierの差によるステータス補正
         if enemy_tier < danger_level:
